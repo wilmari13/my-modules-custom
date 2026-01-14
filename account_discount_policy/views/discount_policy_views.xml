@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_discount_policy_tree" model="ir.ui.view">
+        <field name="name">account.discount.policy.tree</field>
+        <field name="model">account.discount.policy</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="discount_percentage"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_discount_policy" model="ir.actions.act_window">
+        <field name="name">Políticas de Descuento</field>
+        <field name="res_model">account.discount.policy</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_discount_policy" 
+              name="Políticas de Descuento" 
+              parent="account.account_account_menu" 
+              action="action_discount_policy"/>
+</odoo>
