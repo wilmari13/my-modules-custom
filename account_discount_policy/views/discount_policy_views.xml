@@ -6,7 +6,6 @@
             <tree editable="bottom">
                 <field name="name"/>
                 <field name="discount_percentage"/>
-                <field name="active"/>
             </tree>
         </field>
     </record>
