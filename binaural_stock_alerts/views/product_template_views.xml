@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_critical_stock_tree" model="ir.ui.view">
+        <field name="name">product.template.critical.tree</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <tree string="Stock Crítico" decoration-danger="qty_available &lt; x_min_stock">
+                <field name="name"/>
+                <field name="categ_id"/>
+                <field name="qty_available"/>
+                <field name="x_min_stock"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_template_form_view_inherit_stock_alert" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.stock.alert</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='inventory']//group[@name='operations']" position="after">
+                <group string="Alertas de Inventario">
+                    <field name="x_min_stock" string="Stock Mínimo Crítico"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="product_template_kanban_view_inherit_stock_alert" model="ir.ui.view">
+        <field name="name">product.template.kanban.inherit.stock.alert</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+
+            <!-- 1. Agregamos el agrupamiento por defecto a la etiqueta kanban -->
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="default_group_by">categ_id</attribute>
+            </xpath>
+            
+            <xpath expr="//kanban" position="inside">
+                <field name="qty_available"/>
+                <field name="x_min_stock"/>
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_kanban_global_click')]" position="inside">
+                <t t-if="record.qty_available.raw_value &lt; record.x_min_stock.raw_value">
+                    <div class="position-absolute top-0 end-0 p-1">
+                        <span class="badge rounded-pill text-bg-danger shadow-sm">
+                            <i class="fa fa-exclamation-triangle me-1"/> Stock Bajo
+                        </span>
+                    </div>
+                </t>
+            </xpath>
+        </field>
+    </record>
+    
+
+    <record id="action_critical_stock_board" model="ir.actions.act_window">
+        <field name="name">Tablero de Stock Crítico</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('qty_available', '&lt;', 'x_min_stock')]</field>
+        <!-- <field name="context">{'search_default_group_by_category': 1}</field> -->
+    </record>
+
+</odoo>
