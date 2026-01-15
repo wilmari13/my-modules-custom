@@ -1,0 +1,10 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* contacts
+#
+
+#. module: base
+#: model:ir.model.fields,field_description:base.field_res_partner__category_id
+#: model:ir.model.fields,field_description:base.field_res_users__category_id
+msgid "Tags"
+msgstr “Tipo de cliente”
