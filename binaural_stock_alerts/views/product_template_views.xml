@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_critical_stock_tree" model="ir.ui.view">
-        <field name="name">product.template.critical.tree</field>
-        <field name="model">product.template</field>
-        <field name="arch" type="xml">
-            <tree string="Stock Crítico" decoration-danger="qty_available &lt; x_min_stock">
-                <field name="name"/>
-                <field name="categ_id"/>
-                <field name="qty_available"/>
-                <field name="x_min_stock"/>
-            </tree>
-        </field>
-    </record>
-
+    
     <record id="product_template_form_view_inherit_stock_alert" model="ir.ui.view">
         <field name="name">product.template.form.inherit.stock.alert</field>
         <field name="model">product.template</field>
@@ -27,41 +15,48 @@
     </record>
 
 
-    <record id="product_template_kanban_view_inherit_stock_alert" model="ir.ui.view">
-        <field name="name">product.template.kanban.inherit.stock.alert</field>
+     <record id="view_product_template_kanban_critical" model="ir.ui.view">
+        <field name="name">product.template.kanban.critical</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_kanban_view"/>
         <field name="arch" type="xml">
-
-            <!-- 1. Agregamos el agrupamiento por defecto a la etiqueta kanban -->
-            <xpath expr="//kanban" position="attributes">
-                <attribute name="default_group_by">categ_id</attribute>
-            </xpath>
-            
-            <xpath expr="//kanban" position="inside">
+            <kanban default_group_by="categ_id" class="o_kanban_small_column" create="false">
                 <field name="qty_available"/>
                 <field name="x_min_stock"/>
-            </xpath>
-
-            <xpath expr="//div[hasclass('oe_kanban_global_click')]" position="inside">
-                <t t-if="record.qty_available.raw_value &lt; record.x_min_stock.raw_value">
-                    <div class="position-absolute top-0 end-0 p-1">
-                        <span class="badge rounded-pill text-bg-danger shadow-sm">
-                            <i class="fa fa-exclamation-triangle me-1"/> Stock Bajo
-                        </span>
-                    </div>
-                </t>
-            </xpath>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click border-danger">
+                            <div class="o_kanban_image">
+                                <img t-att-src="kanban_image('product.template', 'image_128', record.id.raw_value)" alt="Product"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div class="text-danger">
+                                    <strong>Stock: </strong> <field name="qty_available"/> / 
+                                    <span class="text-muted"><field name="x_min_stock"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
-    
 
-    <record id="action_critical_stock_board" model="ir.actions.act_window">
-        <field name="name">Tablero de Stock Crítico</field>
+    <record id="action_product_critical_stock" model="ir.actions.act_window">
+        <field name="name">Productos en Stock Crítico</field>
         <field name="res_model">product.template</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">[('qty_available', '&lt;', 'x_min_stock')]</field>
-        <!-- <field name="context">{'search_default_group_by_category': 1}</field> -->
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('x_is_critical', '=', True)]</field>
+        <field name="context">{'group_by': 'categ_id'}</field>
+        <field name="view_id" ref="view_product_template_kanban_critical"/>
     </record>
+
+    <menuitem id="menu_product_critical" 
+              name="Stock Crítico" 
+              parent="stock.menu_stock_inventory_control" 
+              action="action_product_critical_stock" 
+              sequence="100"/>
 
 </odoo>
