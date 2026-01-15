@@ -6,7 +6,7 @@ class ResPartner(models.Model):
     # Relacionamos al cliente directamente con una política de descuento
     discount_policy_id = fields.Many2one(
         'account.discount.policy', 
-        string='Política de Descuento Predeterminada'
+        string='tipo de cliente'
     )
 
 
