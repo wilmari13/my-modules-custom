@@ -1,0 +1,16 @@
+<odoo>
+    <data noupdate="1">
+        <record id="cat_minorista" model="res.partner.category">
+            <field name="name">Minorista</field>
+        </record>
+
+        <record id="cat_mayorista" model="res.partner.category">
+            <field name="name">Mayorista</field>
+        </record>
+
+        <record id="cat_vip" model="res.partner.category">
+            <field name="name">VIP</field>
+        </record>
+
+    </data>
+</odoo>

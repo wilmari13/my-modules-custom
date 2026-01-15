@@ -6,4 +6,5 @@ class DiscountPolicy(models.Model):
 
     name = fields.Char(string='Nombre de la Política', required=True)
     discount_percentage = fields.Float(string='Descuento (%)', default=0.0)
+    category_id = fields.Many2one('res.partner.category', string='tipo de cliente')
     

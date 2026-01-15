@@ -14,13 +14,13 @@ class TestInvoiceDiscount(TransactionCase):
         # 2. Cliente con descuento
         self.partner_with_discount = self.env['res.partner'].create({
             'name': 'Cliente VIP',
-            'discount_policy_id': self.policy_10.id
+            'category_id': self.policy_10.id
         })
         
         # 3. Cliente sin descuento
         self.partner_no_discount = self.env['res.partner'].create({
             'name': 'Cliente Normal',
-            'discount_policy_id': False
+            'category_id': False
         })
 
         # 4. Producto de prueba
@@ -42,7 +42,7 @@ class TestInvoiceDiscount(TransactionCase):
             })]
         })
         # Forzar el onchange
-        invoice._onchange_discount_policy_id()
+        invoice._onchange_category_id()
         
         line = invoice.invoice_line_ids[0]
         self.assertEqual(line.discount, 10.0, "El descuento debería ser del 10%")
@@ -60,7 +60,7 @@ class TestInvoiceDiscount(TransactionCase):
                 'tax_ids': [(5, 0, 0)],
             })]
         })
-        invoice._onchange_discount_policy_id()
+        invoice._onchange_category_id()
         
         line = invoice.invoice_line_ids[0]
         self.assertEqual(line.discount, 0.0, "El descuento debería ser 0")
@@ -77,7 +77,7 @@ class TestInvoiceDiscount(TransactionCase):
                 'price_unit': 0,
             })]
         })
-        invoice._onchange_discount_policy_id()
+        invoice._onchange_category_id()
         self.assertEqual(invoice.invoice_line_ids[0].discount, 10.0, "Aun con precio 0, el % se debe asignar")
 
     def test_04_change_partner_update_discount(self):
@@ -93,6 +93,6 @@ class TestInvoiceDiscount(TransactionCase):
         })
         # Cambiamos a un cliente con descuento
         invoice.partner_id = self.partner_with_discount
-        invoice._onchange_discount_policy_id()
+        invoice._onchange_category_id()
         
         self.assertEqual(invoice.invoice_line_ids[0].discount, 10.0, "El descuento no se actualizó al cambiar el partner")
