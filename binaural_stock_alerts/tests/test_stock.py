@@ -37,7 +37,7 @@ class TestAlerts(TransactionCase):
         msgs = self.env['mail.message'].search_count([
             ('res_id', '=', prod.product_tmpl_id.id),
             ('model', '=', 'product.template'),
-            ('body', 'like', 'ALERTA CRÍTICA')
+            ('body', 'like', '¡Atención! El stock de')
         ])
         
         print(">>> TEST FINALIZADO: Sin bucles y sin duplicados.")
