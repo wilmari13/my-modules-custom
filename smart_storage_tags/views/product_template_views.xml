@@ -36,6 +36,11 @@
           <xpath expr="//kanban" position="attributes">
               <attribute name="default_group_by">storage_tag_ids</attribute>
           </xpath>
+          <xpath expr="//div[hasclass('oe_kanban_details')]" position="inside">
+            <div class="mt-2">
+                <field name="storage_tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+            </div>
+          </xpath>
       </field>
   </record>
 </odoo>
