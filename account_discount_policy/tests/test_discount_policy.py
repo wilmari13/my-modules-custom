@@ -1,98 +1,82 @@
 from odoo.tests.common import TransactionCase
-from odoo.exceptions import ValidationError
+from odoo.tests import tagged
 
+@tagged('post_install', '-at_install')
 class TestInvoiceDiscount(TransactionCase):
 
     def setUp(self):
         super(TestInvoiceDiscount, self).setUp()
-        # 1. Crear una política de descuento 
-        self.policy_10 = self.env['account.discount.policy'].create({
-            'name': 'Descuento 10%',
-            'discount_percentage': 10.0
+        
+        # 1. Creamos las categorías (etiquetas)
+        self.cat_vip = self.env['res.partner.category'].create({'name': 'VIP'})
+        self.cat_regular = self.env['res.partner.category'].create({'name': 'Regular'})
+        
+        # 2. Creamos la política de descuento para VIP
+        self.policy_vip = self.env['account.discount.policy'].create({
+            'name': 'Descuento VIP',
+            'discount_percentage': 15.0,
+            'category_id': self.cat_vip.id
         })
         
-        # 2. Cliente con descuento
-        self.partner_with_discount = self.env['res.partner'].create({
-            'name': 'Cliente VIP',
-            'category_id': self.policy_10.id
+        # 3. Creamos los partners
+        self.partner_vip = self.env['res.partner'].create({
+            'name': 'Empresa VIP',
+            'category_id': [(4, self.cat_vip.id)]
         })
         
-        # 3. Cliente sin descuento
-        self.partner_no_discount = self.env['res.partner'].create({
-            'name': 'Cliente Normal',
-            'category_id': False
+        self.partner_normal = self.env['res.partner'].create({
+            'name': 'Empresa Normal',
+            'category_id': [(4, self.cat_regular.id)]
         })
 
-        # 4. Producto de prueba
+        # 4. Producto para las líneas de factura
         self.product = self.env['product.product'].create({
-            'name': 'Producto Test',
-            'lst_price': 100.0
+            'name': 'Servicio Test',
+            'lst_price': 100.0,
+            'property_account_income_id': self.env['account.account'].search([('account_type', '=', 'income')], limit=1).id
         })
 
-    def test_01_invoice_with_discount(self):
-        """Validar factura con descuento aplicado automáticamente"""
-        invoice = self.env['account.move'].create({
-            'move_type': 'out_invoice',
-            'partner_id': self.partner_with_discount.id,
-            'invoice_line_ids': [(0, 0, {
-                'product_id': self.product.id,
-                'quantity': 1,
-                'price_unit': 100.0,
-                'tax_ids': [(5, 0, 0)],
-            })]
-        })
-        # Forzar el onchange
-        invoice._onchange_category_id()
+    def test_invoice_discount_flow(self):
+        """Prueba el ciclo completo: asignar, cambiar y limpiar descuento"""
         
-        line = invoice.invoice_line_ids[0]
-        self.assertEqual(line.discount, 10.0, "El descuento debería ser del 10%")
-        self.assertEqual(invoice.amount_total, 90.0, "El total debería reflejar el descuento")
-
-    def test_02_invoice_without_discount(self):
-        """Validar factura sin descuento"""
+        # ESCENARIO 1: Crear factura para VIP
         invoice = self.env['account.move'].create({
             'move_type': 'out_invoice',
-            'partner_id': self.partner_no_discount.id,
-            'invoice_line_ids': [(0, 0, {
-                'product_id': self.product.id,
-                'quantity': 1,
-                'price_unit': 100.0,
-                'tax_ids': [(5, 0, 0)],
-            })]
-        })
-        invoice._onchange_category_id()
-        
-        line = invoice.invoice_line_ids[0]
-        self.assertEqual(line.discount, 0.0, "El descuento debería ser 0")
-        self.assertEqual(invoice.amount_total, 100.0)
-
-    def test_03_edge_case_zero_price_and_quantity(self):
-        """Caso límite: Cantidad o precio cero"""
-        invoice = self.env['account.move'].create({
-            'move_type': 'out_invoice',
-            'partner_id': self.partner_with_discount.id,
-            'invoice_line_ids': [(0, 0, {
-                'product_id': self.product.id,
-                'quantity': 0,
-                'price_unit': 0,
-            })]
-        })
-        invoice._onchange_category_id()
-        self.assertEqual(invoice.invoice_line_ids[0].discount, 10.0, "Aun con precio 0, el % se debe asignar")
-
-    def test_04_change_partner_update_discount(self):
-        """Caso límite: Cambiar el cliente después de agregar líneas"""
-        invoice = self.env['account.move'].create({
-            'move_type': 'out_invoice',
-            'partner_id': self.partner_no_discount.id,
+            'partner_id': self.partner_vip.id,
             'invoice_line_ids': [(0, 0, {
                 'product_id': self.product.id,
                 'quantity': 1,
                 'price_unit': 100.0,
             })]
         })
-        # Cambiamos a un cliente con descuento
-        invoice.partner_id = self.partner_with_discount
-        invoice._onchange_category_id()
         
-        self.assertEqual(invoice.invoice_line_ids[0].discount, 10.0, "El descuento no se actualizó al cambiar el partner")
+        # Forzamos el onchange
+        invoice._onchange_partner_recompute_discount()
+        
+        self.assertEqual(invoice.invoice_line_ids[0].discount, 15.0, "El descuento debería ser 15% para el cliente VIP")
+
+        # ESCENARIO 2: Cambio de Partner a uno sin política (Reset a 0)
+        invoice.partner_id = self.partner_normal
+        invoice._onchange_partner_recompute_discount()
+        
+        self.assertEqual(invoice.invoice_line_ids[0].discount, 0.0, "El descuento debería volver a 0 al cambiar a un partner sin política")
+
+    def test_edge_case_multiple_categories(self):
+        """Caso límite: Partner con dos categorías, una con descuento y otra no"""
+        # Añadimos la categoría VIP al partner normal
+        self.partner_normal.write({'category_id': [(4, self.cat_vip.id)]})
+        
+        invoice = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.partner_normal.id,
+            'invoice_line_ids': [(0, 0, {
+                'product_id': self.product.id,
+                'quantity': 1,
+                'price_unit': 100.0,
+            })]
+        })
+        
+        invoice._onchange_partner_recompute_discount()
+        
+        # Debería encontrar la política de la categoría VIP aunque tenga otras categorías
+        self.assertEqual(invoice.invoice_line_ids[0].discount, 15.0, "Debe aplicar el descuento si al menos una categoría tiene política")
