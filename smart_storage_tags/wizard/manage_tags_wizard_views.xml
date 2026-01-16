@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_manage_storage_tags_wizard_form" model="ir.ui.view">
+        <field name="name">manage.storage.tags.wizard.form</field>
+        <field name="model">manage.storage.tags.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="product_tmpl_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                </group>
+                <footer>
+                    <button name="action_apply" string="Guardar Cambios" type="object" class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_manage_storage_tags_wizard" model="ir.actions.act_window">
+        <field name="name">Gestionar Etiquetas</field>
+        <field name="res_model">manage.storage.tags.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

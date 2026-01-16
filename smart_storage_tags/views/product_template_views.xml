@@ -28,19 +28,31 @@
         </field>
     </record>
     
-    <record id="product_template_kanban_view_inherit" model="ir.ui.view">
-      <field name="name">product.template.kanban.inherit</field>
-      <field name="model">product.template</field>
-      <field name="inherit_id" ref="product.product_template_kanban_view"/>
-      <field name="arch" type="xml">
-          <xpath expr="//kanban" position="attributes">
-              <attribute name="default_group_by">storage_tag_ids</attribute>
-          </xpath>
-          <xpath expr="//div[hasclass('oe_kanban_details')]" position="inside">
-            <div class="mt-2">
-                <field name="storage_tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
-            </div>
-          </xpath>
-      </field>
-  </record>
+   <record id="product_template_kanban_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.kanban.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="default_group_by">storage_tag_ids</attribute>
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_kanban_details')]" position="inside">
+                <div class="mt-2 d-flex justify-content-between align-items-center">
+                    <field name="storage_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                    
+                    <div class="kanban_buttons">
+                        <button name="%(action_manage_storage_tags_wizard)d" 
+                                type="action" 
+                                class="btn btn-sm btn-link fa fa-plus" 
+                                title="Asignar/Quitar Etiquetas"
+                                context="{'active_id': active_id}"/>
+                    </div>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
 </odoo>

@@ -23,6 +23,7 @@ Long description of module's purpose
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'wizard/manage_tags_wizard_views.xml',
         'views/product_template_views.xml',
         'views/storage_tag_views.xml',
     ],
