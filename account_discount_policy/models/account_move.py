@@ -3,7 +3,7 @@ from odoo import models, fields, api
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    @api.onchange('partner_id')
+    @api.onchange('partner_id', 'invoice_line_ids')
     def _onchange_partner_recompute_discount(self):
         
         new_discount = 0.0
