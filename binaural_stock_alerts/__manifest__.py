@@ -2,7 +2,7 @@
 {
     'name': "binaural_stock_alerts",
 
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
+    'summary': "Product organization in warehouses using dynamic labels and kanban view.",
 
     'description': """
 Long description of module's purpose
@@ -14,7 +14,7 @@ Long description of module's purpose
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Uncategorized',
+    'category': 'Inventory',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
