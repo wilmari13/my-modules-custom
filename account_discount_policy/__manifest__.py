@@ -2,13 +2,13 @@
 {
     'name': "account_discount_policy",
 
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
+    'summary': "Implement automatic discount rules on invoices based on customer type (Retail, Wholesale, VIP).",
 
     'description': """
 Long description of module's purpose
     """,
 
-    'author': "My Company",
+    'author': "Wilmari Padrino",
     'website': "https://www.yourcompany.com",
 
     # Categories can be used to filter modules in modules listing
