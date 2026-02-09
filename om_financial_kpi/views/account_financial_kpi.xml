@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_kpi_tree" model="ir.ui.view">
+        <field name="name">account.financial.kpi.tree</field>
+        <field name="model">account.financial.kpi</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="current_value &lt; threshold_critical" 
+                  decoration-warning="current_value &gt;= threshold_critical and current_value &lt; threshold_warning"
+                  decoration-success="current_value &gt;= threshold_warning">
+                <field name="name"/>
+                <field name="formula"/>
+                <field name="current_value"/>
+                <field name="threshold_critical"/>
+                <field name="threshold_warning"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_account_kpi_kanban" model="ir.ui.view">
+        <field name="name">account.financial.kpi.kanban</field>
+        <field name="model">account.financial.kpi</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="name"/>
+                <field name="current_value"/>
+                <field name="threshold_warning"/>
+                <field name="threshold_critical"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click p-3 border-start border-4 #{record.current_value.raw_value &lt; record.threshold_critical.raw_value ? 'border-danger' : (record.current_value.raw_value &lt; record.threshold_warning.raw_value ? 'border-warning' : 'border-success')}">
+                            <div class="o_kanban_record_top">
+                                <strong><field name="name"/></strong>
+                            </div>
+                            <div class="mt-2">
+                                <h2 class="fw-bold"><field name="current_value"/></h2>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_account_kpi" model="ir.actions.act_window">
+        <field name="name">Tablero de KPIs</field>
+        <field name="res_model">account.financial.kpi</field>
+        <field name="view_mode">kanban,tree,form</field>
+    </record>
+
+    <menuitem id="menu_account_kpi" 
+              name="KPIs Financieros" 
+              parent="account.account_account_menu" 
+              action="action_account_kpi"
+              sequence="10"/>
+</odoo>
