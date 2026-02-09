@@ -41,3 +41,4 @@ class TestAlerts(TransactionCase):
         ])
         
         print(">>> TEST FINALIZADO: Sin bucles y sin duplicados.")
+        self.assertEqual(msgs, 1, f"Se esperaban 1 mensaje de alerta, pero se encontraron {msgs}")

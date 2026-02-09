@@ -11,7 +11,7 @@ class AccountMove(models.Model):
             #buscamos si hay categoria asociada
             policy = self.env['account.discount.policy'].search([
                 ('category_id', 'in', self.partner_id.category_id.ids)
-            ], limit=1)
+            ], order='discount_percentage desc', limit=1)
             
             if policy:
                 new_discount = policy.discount_percentage
